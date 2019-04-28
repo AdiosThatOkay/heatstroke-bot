@@ -1,5 +1,5 @@
 import csv
-from lib.wbgt import WBGT
+from hsbot.wbgt import WBGT
 
 
 def parse_yohou(yohou_csv_file):

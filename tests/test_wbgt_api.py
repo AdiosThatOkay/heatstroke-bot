@@ -1,5 +1,5 @@
 import unittest
-from lib.http_client import (
+from hsbot.wbgt_api import (
     get_yohou, get_jikkyou
 )
 
