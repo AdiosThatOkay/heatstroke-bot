@@ -2,10 +2,9 @@ import csv
 from hsbot.wbgt import WBGT
 
 
-def parse_yohou(yohou_csv_file):
-    with open(yohou_csv_file) as csvfile:
-        dates = csvfile.readline().strip().split(',')
-        degrees = csvfile.readline().strip().split(',')
+def parse_yohou(yohou_csv_stream):
+    dates = yohou_csv_stream.readline().strip().split(',')
+    degrees = yohou_csv_stream.readline().strip().split(',')
 
     del(dates[0:2])
     del(degrees[0:2])
@@ -19,16 +18,15 @@ def parse_yohou(yohou_csv_file):
     return wbgt_list
 
 
-def parse_jikkyou(jikkyou_csv_file):
-    with open(jikkyou_csv_file) as csvfile:
-        reader = csv.reader(csvfile)
-        recent = None
-        for row in reader:
-            if reader.line_num == 1:
-                continue
-            if row[2] == '':
-                break
-            recent = row
+def parse_jikkyou(jikkyou_csv_stream):
+    reader = csv.reader(jikkyou_csv_stream)
+    recent = None
+    for row in reader:
+        if reader.line_num == 1:
+            continue
+        if row[2] == '':
+            break
+        recent = row
     if recent is None or recent[2] == '':
         return None
     else:
