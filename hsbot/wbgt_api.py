@@ -7,11 +7,7 @@ def get_yohou(code):
     url = f"http://www.wbgt.env.go.jp/prev15WG/dl/yohou_{code}.csv"
     res = requests.get(url)
     res.raise_for_status()
-    with tempfile.TemporaryFile(mode='w+') as tmp:
-        tmp.write(res.text)
-        tmp.seek(0)
-        wbgt_list = parser.parse_yohou(tmp)
-
+    wbgt_list = parser.parse_yohou(res.text)
     return wbgt_list
 
 
@@ -23,10 +19,5 @@ def get_jikkyou(code, ym):
         url = f"http://www.wbgt.env.go.jp/est15WG/dl/wbgt_{code}_{ym}.csv"
         res = requests.get(url)
         res.raise_for_status()
-
-    with tempfile.TemporaryFile(mode='w+') as tmp:
-        tmp.write(res.text)
-        tmp.seek(0)
-        wbgt = parser.parse_jikkyou(tmp)
-
+    wbgt = parser.parse_jikkyou(res.text)
     return wbgt

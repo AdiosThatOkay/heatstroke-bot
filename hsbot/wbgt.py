@@ -1,9 +1,17 @@
+from datetime import (
+    datetime, timedelta
+)
+
+
 class WBGT:
+    weekday = {0: '(月)', 1: '(火)', 2: '(水)', 3: '(木)',
+               4: '(金)', 5: '(土)', 6: '(日)'}
+
     def __init__(self, date, degree):
         self.date = date
         self.degree = degree
 
-    def guideline(self):
+    def risk(self):
         if self.degree < 21:
             return "ほぼ安全"
         elif 21 <= self.degree < 25:
@@ -32,3 +40,65 @@ class WBGT:
                    "特別な場合以外は、運動を中止しましょう。"
                    "特に子どもの場合は中止すべきです。")
         return msg
+
+    def get_year(self):
+        return self.date[0:4]
+
+    def get_month(self):
+        return self.date[4:6]
+
+    def get_short_month(self):
+        if self.get_month()[0] == "0":
+            return self.get_month()[1]
+        else:
+            return self.get_month()
+
+    def get_day(self):
+        return self.date[6:8]
+
+    def get_short_day(self):
+        if self.get_day()[0] == "0":
+            return self.get_day()[1]
+        else:
+            return self.get_day()
+
+    def get_hour(self):
+        return self.date[8:10]
+
+    def get_short_hour(self):
+        if self.get_hour()[0] == "0":
+            return self.get_hour()[1]
+        else:
+            return self.get_hour()
+
+    def get_weekday(self):
+        datetime_obj = datetime.strptime(
+            (self.get_year() + self.get_month() + self.get_day()), '%Y%m%d')
+        weekday_num = datetime_obj.weekday()
+        return self.weekday[weekday_num]
+
+    def get_n_days_later(self, n):
+        datetime_str = self.get_year() + self.get_month() + self.get_day()
+        datetime_obj = datetime.strptime(datetime_str, '%Y%m%d')
+        later_datetime_obj = datetime_obj + timedelta(days=n)
+        return WBGT(str(later_datetime_obj.year) +
+                    str(later_datetime_obj.month).zfill(2) +
+                    str(later_datetime_obj.day).zfill(2) + '00', self.degree)
+
+    def later_than(self, other):
+        if isinstance(other, self.__class__):
+            return (self.get_year() + self.get_month() +
+                    self.get_day() + self.get_hour() >
+                    other.get_year() + other.get_month() +
+                    other.get_day() + other.get_hour())
+        else:
+            return False
+
+    def is_same_day(self, other):
+        if isinstance(other, self.__class__):
+            return (self.get_year() + self.get_month() +
+                    self.get_day() ==
+                    other.get_year() + other.get_month() +
+                    other.get_day())
+        else:
+            return False
