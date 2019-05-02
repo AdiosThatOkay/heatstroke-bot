@@ -46,8 +46,9 @@ class TestParser(unittest.TestCase):
     def test_parse_jikkyou_no_degree(self):
         """
         (abnormal) no_degree
+        It doesn't actually happen
         test method of parser.parse_jikkyou
         """
-        with open('./tests/sample/jikkyou_no_degree.csv') as csv:
-            actual = parse_jikkyou(csv.read())
-            self.assertIsNone(actual)
+        with self.assertRaises(Exception):
+            with open('./tests/sample/jikkyou_no_degree.csv') as csv:
+                parse_jikkyou(csv.read())

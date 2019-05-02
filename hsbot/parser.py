@@ -30,7 +30,7 @@ def parse_jikkyou(jikkyou_csv_data):
             break
         recent = row
     if recent is None or recent[2] == '':
-        return None
+        raise Exception('Unexpected jikkyou_data')
     else:
         year, month, day = recent[0].split('/')
         hour = recent[1].split(':')[0]
