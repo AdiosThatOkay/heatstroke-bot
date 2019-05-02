@@ -5,6 +5,7 @@ class Observatory(db.Model):
     __tablename__ = 'observatories'
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(10), index=True, unique=True)
+    pref = db.Column(db.String(10))
     name = db.Column(db.String(50))
     name_kana = db.Column(db.String(50))
     location = db.Column(db.String(255))
@@ -13,9 +14,10 @@ class Observatory(db.Model):
     lon_deg = db.Column(db.Integer)
     lon_min = db.Column(db.Float)
 
-    def __init__(self, code, name, name_kana, location,
+    def __init__(self, code, pref, name, name_kana, location,
                  lat_deg, lat_min, lon_deg, lon_min):
         self.code = code
+        self.pref = pref
         self.name = name
         self.name_kana = name_kana
         self.location = location
