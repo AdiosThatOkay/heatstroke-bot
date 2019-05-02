@@ -1,6 +1,6 @@
 import unittest
-from hsbot.message_builder import MessageBuilder
-from hsbot.parser import (
+from hsbot.utils.message_builder import MessageBuilder
+from hsbot.utils.parser import (
     parse_yohou, parse_jikkyou
 )
 

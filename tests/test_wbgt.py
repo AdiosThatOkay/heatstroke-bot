@@ -1,6 +1,5 @@
 import unittest
-from datetime import datetime
-from hsbot.wbgt import WBGT
+from hsbot.utils.wbgt import WBGT
 
 
 class TestWBGT(unittest.TestCase):

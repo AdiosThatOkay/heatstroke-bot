@@ -1,4 +1,4 @@
-import unittest 
+import unittest
 from hsbot.models.observatories import Observatory
 
 

@@ -1,8 +1,8 @@
 import unittest
-from hsbot.parser import (
+from hsbot.utils.parser import (
     parse_yohou, parse_jikkyou
 )
-from hsbot.wbgt import WBGT
+from hsbot.utils.wbgt import WBGT
 
 
 class TestParser(unittest.TestCase):

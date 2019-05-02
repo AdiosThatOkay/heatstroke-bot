@@ -1,8 +1,8 @@
 import unittest
-from hsbot.wbgt_api import (
+from hsbot.utils.wbgt_api import (
     get_yohou, get_jikkyou
 )
-from hsbot.wbgt import WBGT
+from hsbot.utils.wbgt import WBGT
 from requests.exceptions import HTTPError
 from datetime import (
     datetime, timedelta

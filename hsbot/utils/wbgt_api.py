@@ -1,6 +1,5 @@
 import requests
-import tempfile
-import hsbot.parser as parser
+import hsbot.utils.parser as parser
 
 
 def get_yohou(code):
