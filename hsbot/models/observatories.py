@@ -28,3 +28,9 @@ class Observatory(db.Model):
 
     def __repr__(self):
         return f'<Observatory id:{self.id} code:{self.code} name:{self.name}>'
+
+    def lat60tolat10(self):
+        return self.lat_deg + self.lat_min / 60
+
+    def lon60tolon10(self):
+        return self.lon_deg + self.lon_min / 60
