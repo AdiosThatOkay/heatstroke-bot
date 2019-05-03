@@ -10,8 +10,8 @@ from linebot.models import (
 )
 from hsbot import app
 
-line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
-handler = WebhookHandler('YOUR_CHANNEL_SECRET')
+line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
+handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])
 
 
 @app.route("/callback", methods=['POST'])
