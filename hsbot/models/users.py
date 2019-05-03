@@ -17,4 +17,4 @@ class User(db.Model):
         self.notified = False
 
     def __repr__(self):
-        return f'<User id:{self.id} name:{self.name} notified:{self.notified}>'
+        return f'<User id:{self.user_id} name:{self.name}>'
