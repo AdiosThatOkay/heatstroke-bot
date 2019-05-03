@@ -19,4 +19,5 @@ ENV LINE_CHANNEL_SECRET = "YOUR_CHANNEL_SECRET"
 RUN python manage.py init_db && python manage.py insert_observatories
 RUN python -m unittest discover tests
 
+VOLUME ["/app/hsbot/database"]
 ENTRYPOINT ["python", "bot.py"]
