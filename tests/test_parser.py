@@ -18,6 +18,7 @@ class TestParser(unittest.TestCase):
             actual = parse_yohou(csv.read())
             self.assertEqual(list, type(actual))
             self.assertEqual(WBGT, type(actual[0]))
+            self.assertEqual("46106", actual[0].observatory_code)
             self.assertEqual("2019042815", actual[0].date)
             self.assertEqual(14.0, actual[0].degree)
 
@@ -29,6 +30,7 @@ class TestParser(unittest.TestCase):
         with open('./tests/sample/jikkyou_normal.csv') as csv:
             actual = parse_jikkyou(csv.read())
             self.assertEqual(WBGT, type(actual))
+            self.assertEqual("43056", actual.observatory_code)
             self.assertEqual("2019042813", actual.date)
             self.assertEqual(14.9, actual.degree)
 
@@ -40,6 +42,7 @@ class TestParser(unittest.TestCase):
         with open('./tests/sample/jikkyou_full_degree.csv') as csv:
             actual = parse_jikkyou(csv.read())
             self.assertEqual(WBGT, type(actual))
+            self.assertEqual("43056", actual.observatory_code)
             self.assertEqual("2019042824", actual.date)
             self.assertEqual(14.9, actual.degree)
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, request, abort
 from linebot import (
     LineBotApi, WebhookHandler
@@ -12,6 +13,10 @@ from hsbot import (
     app, db
 )
 from hsbot.models.users import User
+from hsbot.utils.message_builder import MessageBuilder
+from hsbot.utils.wbgt_api import (
+    get_jikkyou, get_yohou
+)
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])
@@ -36,9 +41,21 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    if event.message.text in ['いま', '今', 'now', 'きょう', '今日', 'today']:
+        builder = get_message_builder(event)
+        msg = builder.build_message_today()
+    elif event.message.text in ['あした', 'あす', '明日', 'tomorrow']:
+        builder = get_message_builder(event)
+        msg = builder.build_message_later_date(1)
+    elif event.message.text in ['あさって', '明後日', 'day after tomorrow']:
+        builder = get_message_builder(event)
+        msg = builder.build_message_later_date(2)
+    else:
+        msg = MessageBuilder.DEFAULT_MESSAGE
+
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text))
+        TextSendMessage(text=msg))
 
 
 @handler.add(FollowEvent)
@@ -66,3 +83,13 @@ def handle_unfollow(event):
 @app.route('/')
 def hello():
     return "This is Test."
+
+
+def get_message_builder(event):
+    user_id = event.source.user_id
+    user = db.session.query(User).filter(User.user_id == user_id).first()
+    observatory_code = user.nearest_observatory
+    now_ym = datetime.now().strftime('%Y%m')
+    now_wbgt = get_jikkyou(observatory_code, now_ym)
+    yohou_wbgt = get_yohou(observatory_code)
+    return MessageBuilder(now_wbgt, yohou_wbgt)
