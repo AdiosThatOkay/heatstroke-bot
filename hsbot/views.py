@@ -1,4 +1,3 @@
-from datetime import datetime
 from flask import Flask, request, abort
 from linebot import (
     LineBotApi, WebhookHandler
@@ -17,9 +16,6 @@ from hsbot import (
 from hsbot.models.users import User
 from hsbot.models.observatories import Observatory
 from hsbot.utils.message_builder import MessageBuilder
-from hsbot.utils.wbgt_api import (
-    get_jikkyou, get_yohou
-)
 from hsbot.utils.utils import get_nearest_observatory
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
@@ -45,17 +41,18 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    user_id = event.source.user_id
     if event.message.text in ['いま', '今', 'now', 'きょう', '今日', 'today']:
-        builder = get_message_builder(event)
+        builder = MessageBuilder.get_message_builder(user_id)
         msg = builder.build_message_today()
     elif event.message.text in ['あした', 'あす', '明日', 'tomorrow']:
-        builder = get_message_builder(event)
+        builder = MessageBuilder.get_message_builder(user_id)
         msg = builder.build_message_later_date(1)
     elif event.message.text in ['あさって', '明後日', 'day after tomorrow']:
-        builder = get_message_builder(event)
+        builder = MessageBuilder.get_message_builder(user_id)
         msg = builder.build_message_later_date(2)
     else:
-        msg = MessageBuilder.DEFAULT_MESSAGE
+        msg = MessageBuilder.get_default_message()
 
     line_bot_api.reply_message(
         event.reply_token,
@@ -83,10 +80,10 @@ def handle_location_message(event):
             actions=[
                 PostbackAction(
                     label='はい',
-                    data=f'change=True&code={nearest_observatory.code}'),
+                    data=f'change=1&code={nearest_observatory.code}'),
                 PostbackAction(
                     label='いいえ',
-                    data='change=False')]))
+                    data='change=0')]))
 
     line_bot_api.reply_message(event.reply_token, messages)
     app.logger.info(f"{user} send location [{user_lat}, {user_lon}]")
@@ -125,13 +122,3 @@ def handle_unfollow(event):
 @app.route('/')
 def hello():
     return "This is Test."
-
-
-def get_message_builder(event):
-    user_id = event.source.user_id
-    user = db.session.query(User).filter(User.user_id == user_id).first()
-    observatory_code = user.nearest_observatory
-    now_ym = datetime.now().strftime('%Y%m')
-    now_wbgt = get_jikkyou(observatory_code, now_ym)
-    yohou_wbgt = get_yohou(observatory_code)
-    return MessageBuilder(now_wbgt, yohou_wbgt)

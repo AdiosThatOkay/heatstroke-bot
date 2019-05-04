@@ -1,4 +1,10 @@
+from hsbot import db
+from hsbot.models.users import User
 from hsbot.utils.utils import get_observatory_name
+from hsbot.utils.wbgt_api import (
+    get_jikkyou, get_yohou
+)
+import datetime
 
 
 class MessageBuilder:
@@ -9,6 +15,19 @@ class MessageBuilder:
 ・「今」「明日」「明後日」(ひらがなでもOK)と話しかけると、その日の暑さ情報の予測をお知らせします。"""
     MSG_FOOTER = """
 ※暑さ指数の単位は℃ですが、気温とは異なります。詳しくは環境省熱中症予防情報サイトへ(http://www.wbgt.env.go.jp/)"""
+
+    @classmethod
+    def get_message_builder(cls, user_id,
+                            ym=datetime.datetime.now().strftime('%Y%m')):
+        user = db.session.query(User).filter(User.user_id == user_id).first()
+        observatory_code = user.nearest_observatory
+        now_wbgt = get_jikkyou(observatory_code, ym)
+        yohou_wbgt = get_yohou(observatory_code)
+        return MessageBuilder(now_wbgt, yohou_wbgt)
+
+    @classmethod
+    def get_default_message(cls):
+        return cls.DEFAULT_MESSAGE
 
     def __init__(self, now_wbgt, yohou_wbgt):
         self.now_wbgt = now_wbgt

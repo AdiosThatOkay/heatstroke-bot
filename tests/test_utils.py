@@ -1,6 +1,7 @@
 import hsbot
 from hsbot.utils.utils import (
-    get_nearest_observatory, get_observatory_name
+    get_nearest_observatory, get_observatory_name,
+    postback_data_to_dict
 )
 from hsbot.scripts.db import InitDB
 import os
@@ -30,3 +31,15 @@ class TestUtils(unittest.TestCase):
 
     def test_get_observatory_name(self):
         self.assertEqual("横浜", get_observatory_name("46106"))
+
+    def test_postback_data_to_dict(self):
+        data0 = "change=1&code=46166"
+        result0 = postback_data_to_dict(data0)
+        self.assertEqual(dict, type(result0))
+        self.assertEqual(True, result0['change'])
+        self.assertEqual("46166", result0['code'])
+
+        data1 = "change=0"
+        result1 = postback_data_to_dict(data1)
+        self.assertEqual(dict, type(result1))
+        self.assertEqual(False, result1['change'])
