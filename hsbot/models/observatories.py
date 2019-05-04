@@ -27,7 +27,7 @@ class Observatory(db.Model):
         self.lon_min = lon_min
 
     def __repr__(self):
-        return f'<Observatory id:{self.id} code:{self.code} name:{self.name}>'
+        return f'<{self.name}({self.code})>'
 
     def lat60tolat10(self):
         return self.lat_deg + self.lat_min / 60
