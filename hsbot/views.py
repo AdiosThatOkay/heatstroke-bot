@@ -16,7 +16,9 @@ from hsbot import (
 from hsbot.models.users import User
 from hsbot.models.observatories import Observatory
 from hsbot.utils.message_builder import MessageBuilder
-from hsbot.utils.utils import get_nearest_observatory
+from hsbot.utils.utils import (
+    get_nearest_observatory, postback_data_to_dict
+)
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])
@@ -54,9 +56,7 @@ def handle_message(event):
     else:
         msg = MessageBuilder.get_default_message()
 
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=msg))
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=msg))
 
 
 @handler.add(MessageEvent, message=LocationMessage)
@@ -93,7 +93,14 @@ def handle_location_message(event):
 def handle_postback(event):
     user_id = event.source.user_id
     user = db.session.query(User).filter(User.user_id == user_id).first()
-    postback_data = event.postback.data
+    postback_data = postback_data_to_dict(event.postback.data)
+    if postback_data['change']:
+        user.nearest_observatory = postback_data['code']
+        db.session.commit()
+        msg = "観測地点を変更しました。"
+    else:
+        msg = "観測地点の変更を中止しました。"
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=msg))
     app.logger.info(f"{user} send {postback_data}")
 
 

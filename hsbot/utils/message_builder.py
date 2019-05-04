@@ -1,6 +1,6 @@
 from hsbot import db
 from hsbot.models.users import User
-from hsbot.utils.utils import get_observatory_name
+from hsbot.models.observatories import Observatory
 from hsbot.utils.wbgt_api import (
     get_jikkyou, get_yohou
 )
@@ -36,7 +36,7 @@ class MessageBuilder:
     def build_message_today(self):
         msg = f"""\
 {self.now_wbgt.get_short_month()}月{self.now_wbgt.get_short_day()}日{self.now_wbgt.get_weekday()}の暑さ指数
-観測地点: {get_observatory_name(self.now_wbgt.observatory_code)}({self.now_wbgt.observatory_code})
+観測地点: {self.get_observatory_name()}({self.now_wbgt.observatory_code})
 
 ○現在の状況
 {self.now_wbgt.get_short_hour()}時現在 {self.now_wbgt.degree}℃({self.now_wbgt.risk()})
@@ -61,7 +61,7 @@ class MessageBuilder:
         later_wbgt = self.now_wbgt.get_n_days_later(n)
         msg = f"""\
 {later_wbgt.get_short_month()}月{later_wbgt.get_short_day()}日{later_wbgt.get_weekday()}の暑さ指数の予測
-観測地点: {get_observatory_name(self.now_wbgt.observatory_code)}({self.now_wbgt.observatory_code})
+観測地点: {self.get_observatory_name()}({self.now_wbgt.observatory_code})
 
 """
         yosoku_list = [w for w in self.yohou_wbgt
@@ -76,3 +76,8 @@ class MessageBuilder:
         msg += self.MSG_FOOTER
 
         return msg
+
+    def get_observatory_name(self):
+        observatory = db.session.query(Observatory).filter(
+                Observatory.code == self.now_wbgt.observatory_code).first()
+        return observatory.name

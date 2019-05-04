@@ -25,12 +25,6 @@ def get_distance(lat1, lon1, lat2, lon2):
     return ((abs(lat1 - lat2))**2 + (abs(lon1 - lon2))**2)**0.5
 
 
-def get_observatory_name(observatory_code):
-    observatory = db.session.query(Observatory).filter(
-            Observatory.code == observatory_code).first()
-    return observatory.name
-
-
 def postback_data_to_dict(data):
     parsed = urllib.parse.parse_qs(data)
     ret = {}

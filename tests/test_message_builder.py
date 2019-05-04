@@ -29,6 +29,12 @@ class TestMessageBuilder(unittest.TestCase):
             yohou_wbgt_1 = parse_yohou(yohou_csv_1.read())
         self.mbuilder1 = MessageBuilder(jikkyou_wbgt_1, yohou_wbgt_1)
 
+    def test_get_message_builder(self):
+        """
+        not implemented tests using User model
+        """
+        pass
+
     def test_build_message_today(self):
         actual = self.mbuilder.build_message_today()
         self.assertEqual("""\
@@ -178,3 +184,6 @@ class TestMessageBuilder(unittest.TestCase):
 予測情報はまだありません
 
 ※暑さ指数の単位は℃ですが、気温とは異なります。詳しくは環境省熱中症予防情報サイトへ(http://www.wbgt.env.go.jp/)""", actual)
+
+    def test_get_observatory_name(self):
+        self.assertEqual("熊谷", self.mbuilder.get_observatory_name())
