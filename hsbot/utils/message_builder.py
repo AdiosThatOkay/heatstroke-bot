@@ -1,4 +1,6 @@
 from hsbot.utils.utils import get_observatory_name
+
+
 class MessageBuilder:
     DEFAULT_MESSAGE = """\
 ・＋ボタンを押して位置情報を送ると、現在地に一番近い観測地点を登録します。再度位置情報を送るまで、観測地点は変わりません。

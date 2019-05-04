@@ -7,16 +7,20 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, FollowEvent, UnfollowEvent
+    TextMessage, TextSendMessage, LocationMessage, TemplateSendMessage,
+    ConfirmTemplate, MessageEvent, PostbackEvent, FollowEvent, UnfollowEvent,
+    PostbackAction
 )
 from hsbot import (
     app, db
 )
 from hsbot.models.users import User
+from hsbot.models.observatories import Observatory
 from hsbot.utils.message_builder import MessageBuilder
 from hsbot.utils.wbgt_api import (
     get_jikkyou, get_yohou
 )
+from hsbot.utils.utils import get_nearest_observatory
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])
@@ -56,6 +60,44 @@ def handle_message(event):
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=msg))
+
+
+@handler.add(MessageEvent, message=LocationMessage)
+def handle_location_message(event):
+    user_id = event.source.user_id
+    user = db.session.query(User).filter(User.user_id == user_id).first()
+    registered_observatory = db.session.query(Observatory).filter(
+        Observatory.code == user.nearest_observatory).first()
+
+    user_lat = event.message.latitude
+    user_lon = event.message.longitude
+    nearest_observatory = get_nearest_observatory(user_lat, user_lon)
+
+    msg_text = f"現在登録している観測地点は{registered_observatory}です。\n"
+    msg_text += f"最寄りの観測地点{nearest_observatory}に変更しますか？"
+
+    messages = TemplateSendMessage(
+        alt_text='Confirm template',
+        template=ConfirmTemplate(
+            text=msg_text,
+            actions=[
+                PostbackAction(
+                    label='はい',
+                    data=f'change=True&code={nearest_observatory.code}'),
+                PostbackAction(
+                    label='いいえ',
+                    data='change=False')]))
+
+    line_bot_api.reply_message(event.reply_token, messages)
+    app.logger.info(f"{user} send location [{user_lat}, {user_lon}]")
+
+
+@handler.add(PostbackEvent)
+def handle_postback(event):
+    user_id = event.source.user_id
+    user = db.session.query(User).filter(User.user_id == user_id).first()
+    postback_data = event.postback.data
+    app.logger.info(f"{user} send {postback_data}")
 
 
 @handler.add(FollowEvent)
