@@ -6,9 +6,9 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    TextMessage, TextSendMessage, LocationMessage, TemplateSendMessage,
-    ConfirmTemplate, MessageEvent, PostbackEvent, FollowEvent, UnfollowEvent,
-    PostbackAction
+    TextMessage, TextSendMessage, LocationMessage,
+    MessageEvent, PostbackEvent, FollowEvent, UnfollowEvent,
+    PostbackAction, QuickReply, QuickReplyButton
 )
 from hsbot import (
     app, db
@@ -73,17 +73,14 @@ def handle_location_message(event):
     msg_text = f"現在登録している観測地点:\n  {registered_observatory}\n"
     msg_text += f"最寄りの観測地点:\n  {nearest_observatory}\nに変更しますか？"
 
-    messages = TemplateSendMessage(
-        alt_text='位置情報を送信しました',
-        template=ConfirmTemplate(
-            text=msg_text,
-            actions=[
-                PostbackAction(
-                    label='はい',
-                    data=f'change=1&code={nearest_observatory.code}'),
-                PostbackAction(
-                    label='いいえ',
-                    data='change=0')]))
+    messages = TextSendMessage(text=msg_text,
+                               quick_reply=QuickReply(items=[
+                                   QuickReplyButton(action=PostbackAction(
+                                       label='はい',
+                                       data=f'change=1&code={nearest_observatory.code}')),
+                                   QuickReplyButton(action=PostbackAction(
+                                       label='いいえ',
+                                       data='change=0'))]))
 
     line_bot_api.reply_message(event.reply_token, messages)
     app.logger.info(f"{user} send location [{user_lat}, {user_lon}]")
@@ -101,7 +98,7 @@ def handle_postback(event):
     else:
         msg = "観測地点の変更を中止しました。"
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=msg))
-    app.logger.info(f"{user} send {postback_data}")
+    app.logger.info(f"{user} send data: {event.postback.data}")
 
 
 @handler.add(FollowEvent)
