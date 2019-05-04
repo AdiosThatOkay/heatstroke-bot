@@ -73,11 +73,11 @@ def handle_location_message(event):
     user_lon = event.message.longitude
     nearest_observatory = get_nearest_observatory(user_lat, user_lon)
 
-    msg_text = f"現在登録している観測地点は{registered_observatory}です。\n"
-    msg_text += f"最寄りの観測地点{nearest_observatory}に変更しますか？"
+    msg_text = f"現在登録している観測地点:\n  {registered_observatory}\n"
+    msg_text += f"最寄りの観測地点:\n  {nearest_observatory}\nに変更しますか？"
 
     messages = TemplateSendMessage(
-        alt_text='Confirm template',
+        alt_text='位置情報を送信しました',
         template=ConfirmTemplate(
             text=msg_text,
             actions=[
