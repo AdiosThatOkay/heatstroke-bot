@@ -7,7 +7,8 @@ class WBGT:
     weekday = {0: '(月)', 1: '(火)', 2: '(水)', 3: '(木)',
                4: '(金)', 5: '(土)', 6: '(日)'}
 
-    def __init__(self, date, degree):
+    def __init__(self, observatory_code, date, degree):
+        self.observatory_code = observatory_code
         self.date = date
         self.degree = degree
 
@@ -81,7 +82,8 @@ class WBGT:
         datetime_str = self.get_year() + self.get_month() + self.get_day()
         datetime_obj = datetime.strptime(datetime_str, '%Y%m%d')
         later_datetime_obj = datetime_obj + timedelta(days=n)
-        return WBGT(str(later_datetime_obj.year) +
+        return WBGT(self.observatory_code,
+                    str(later_datetime_obj.year) +
                     str(later_datetime_obj.month).zfill(2) +
                     str(later_datetime_obj.day).zfill(2) + '00', self.degree)
 

@@ -33,6 +33,7 @@ class TestMessageBuilder(unittest.TestCase):
         actual = self.mbuilder.build_message_today()
         self.assertEqual("""\
 4月28日(日)の暑さ指数
+観測地点: 熊谷(43056)
 
 ○現在の状況
 13時現在 14.9℃(ほぼ安全)
@@ -50,6 +51,7 @@ class TestMessageBuilder(unittest.TestCase):
         actual = self.mbuilder.build_message_later_date(1)
         self.assertEqual("""\
 4月29日(月)の暑さ指数の予測
+観測地点: 熊谷(43056)
 
 3時: 11℃(ほぼ安全)
 6時: 12℃(ほぼ安全)
@@ -66,6 +68,7 @@ class TestMessageBuilder(unittest.TestCase):
         actual = self.mbuilder.build_message_later_date(2)
         self.assertEqual("""\
 4月30日(火)の暑さ指数の予測
+観測地点: 熊谷(43056)
 
 3時: 14℃(ほぼ安全)
 6時: 15℃(ほぼ安全)
@@ -82,6 +85,7 @@ class TestMessageBuilder(unittest.TestCase):
         actual = self.mbuilder24.build_message_today()
         self.assertEqual("""\
 4月29日(月)の暑さ指数
+観測地点: 横浜(46106)
 
 ○現在の状況
 24時現在 13.5℃(ほぼ安全)
@@ -96,6 +100,7 @@ class TestMessageBuilder(unittest.TestCase):
         actual = self.mbuilder24.build_message_later_date(1)
         self.assertEqual("""\
 4月30日(火)の暑さ指数の予測
+観測地点: 横浜(46106)
 
 3時: 13℃(ほぼ安全)
 6時: 13℃(ほぼ安全)
@@ -112,6 +117,7 @@ class TestMessageBuilder(unittest.TestCase):
         actual = self.mbuilder24.build_message_later_date(2)
         self.assertEqual("""\
 5月1日(水)の暑さ指数の予測
+観測地点: 横浜(46106)
 
 3時: 14℃(ほぼ安全)
 6時: 15℃(ほぼ安全)
@@ -128,6 +134,7 @@ class TestMessageBuilder(unittest.TestCase):
         actual = self.mbuilder1.build_message_today()
         self.assertEqual("""\
 4月30日(火)の暑さ指数
+観測地点: 横浜(46106)
 
 ○現在の状況
 1時現在 13.6℃(ほぼ安全)
@@ -149,6 +156,7 @@ class TestMessageBuilder(unittest.TestCase):
         actual = self.mbuilder1.build_message_later_date(1)
         self.assertEqual("""\
 5月1日(水)の暑さ指数の予測
+観測地点: 横浜(46106)
 
 3時: 14℃(ほぼ安全)
 6時: 15℃(ほぼ安全)
@@ -165,6 +173,7 @@ class TestMessageBuilder(unittest.TestCase):
         actual = self.mbuilder1.build_message_later_date(2)
         self.assertEqual("""\
 5月2日(木)の暑さ指数の予測
+観測地点: 横浜(46106)
 
 予測情報はまだありません
 

@@ -5,6 +5,7 @@ def parse_yohou(yohou_csv_data):
     dates, degrees = yohou_csv_data.rstrip().split('\n')
     dates = dates.split(',')
     degrees = degrees.split(',')
+    observatory_code = str(degrees[0])
 
     del(dates[0:2])
     del(degrees[0:2])
@@ -12,7 +13,7 @@ def parse_yohou(yohou_csv_data):
 
     wbgt_list = []
     for date, degree in zip(dates, degrees):
-        w = WBGT(date, degree)
+        w = WBGT(observatory_code, date, degree)
         wbgt_list.append(w)
 
     return wbgt_list
@@ -24,7 +25,7 @@ def parse_jikkyou(jikkyou_csv_data):
     for i, line in enum:
         row = line.split(',')
         if i == 0:
-            continue
+            observatory_code = str(row[2])
         if row[2] == '':
             break
         recent = row
@@ -37,4 +38,6 @@ def parse_jikkyou(jikkyou_csv_data):
         day = day.zfill(2)
         hour = hour.zfill(2)
 
-        return WBGT(year + month + day + hour, float(recent[2]))
+        return WBGT(observatory_code,
+                    year + month + day + hour,
+                    float(recent[2]))
