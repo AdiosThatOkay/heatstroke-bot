@@ -3,6 +3,7 @@ from hsbot.utils.message_builder import MessageBuilder
 from hsbot.utils.parser import (
     parse_yohou, parse_jikkyou
 )
+from hsbot.utils.wbgt import WBGT
 
 
 class TestMessageBuilder(unittest.TestCase):
@@ -185,5 +186,12 @@ class TestMessageBuilder(unittest.TestCase):
 
 ※暑さ指数の単位は℃ですが、気温とは異なります。詳しくは環境省熱中症予防情報サイトへ(http://www.wbgt.env.go.jp/)""", actual)
 
-    def test_get_observatory_name(self):
-        self.assertEqual("熊谷", self.mbuilder.get_observatory_name())
+    def test_get_warning_message(self):
+        wbgt = WBGT("46106", "2019042815", 31.0)
+        self.assertEqual("""\
+【注意】熱中症の危険性がとても高くなっています
+観測地点: 横浜(46106)
+
+15時現在の暑さ指数 31.0℃(危険)
+
+※暑さ指数の単位は℃ですが、気温とは異なります。詳しくは環境省熱中症予防情報サイトへ(http://www.wbgt.env.go.jp/)""", MessageBuilder.get_warning_message(wbgt))

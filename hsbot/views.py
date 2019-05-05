@@ -19,6 +19,10 @@ from hsbot.utils.message_builder import MessageBuilder
 from hsbot.utils.utils import (
     get_nearest_observatory, postback_data_to_dict
 )
+from hsbot.utils.wbgt_api import (
+    get_jikkyou, get_yohou
+)
+import datetime
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])
@@ -44,15 +48,19 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_id = event.source.user_id
+    user = db.session.query(User).filter(User.user_id == user_id).first()
+    observatory_code = user.nearest_observatory
+    ym = datetime.datetime.now().strftime('%Y%m')
+    now_wbgt = get_jikkyou(observatory_code, ym)
+    yohou_wbgt = get_yohou(observatory_code)
+    message_builder = MessageBuilder(now_wbgt, yohou_wbgt)
+
     if event.message.text in ['いま', '今', 'now', 'きょう', '今日', 'today']:
-        builder = MessageBuilder.get_message_builder(user_id)
-        msg = builder.build_message_today()
+        msg = message_builder.build_message_today()
     elif event.message.text in ['あした', 'あす', '明日', 'tomorrow']:
-        builder = MessageBuilder.get_message_builder(user_id)
-        msg = builder.build_message_later_date(1)
+        msg = message_builder.build_message_later_date(1)
     elif event.message.text in ['あさって', '明後日', 'day after tomorrow']:
-        builder = MessageBuilder.get_message_builder(user_id)
-        msg = builder.build_message_later_date(2)
+        msg = message_builder.build_message_later_date(2)
     else:
         msg = MessageBuilder.get_default_message()
 
@@ -73,14 +81,15 @@ def handle_location_message(event):
     msg_text = f"現在登録している観測地点:\n  {registered_observatory}\n"
     msg_text += f"最寄りの観測地点:\n  {nearest_observatory}\nに変更しますか？"
 
-    messages = TextSendMessage(text=msg_text,
-                               quick_reply=QuickReply(items=[
-                                   QuickReplyButton(action=PostbackAction(
-                                       label='はい',
-                                       data=f'change=1&code={nearest_observatory.code}')),
-                                   QuickReplyButton(action=PostbackAction(
-                                       label='いいえ',
-                                       data='change=0'))]))
+    messages = TextSendMessage(
+                   text=msg_text,
+                   quick_reply=QuickReply(items=[
+                       QuickReplyButton(action=PostbackAction(
+                           label='はい',
+                           data=f'change=1&code={nearest_observatory.code}')),
+                       QuickReplyButton(action=PostbackAction(
+                           label='いいえ',
+                           data='change=0'))]))
 
     line_bot_api.reply_message(event.reply_token, messages)
     app.logger.info(f"{user} send location [{user_lat}, {user_lon}]")
@@ -125,4 +134,52 @@ def handle_unfollow(event):
 
 @app.route('/')
 def hello():
-    return "This is Test."
+    return "OK"
+
+
+@app.route('/check')
+def check():
+    if request.remote_addr == "127.0.0.1":
+        result_cache = {}
+        all_users = db.session.query(User).all()
+        for user in all_users:
+            if user.notified is True:
+                continue
+            wbgt = result_cache.get(
+                    user.nearest_observatory,
+                    get_jikkyou(user.nearest_observatory,
+                                datetime.datetime.now().strftime('%Y%m')))
+            result_cache.setdefault(user.nearest_observatory, wbgt)
+            if wbgt.risk() == '危険':
+                msg = MessageBuilder.get_warning_message(wbgt)
+                line_bot_api.push_message(user.user_id,
+                                          messages=TextSendMessage(text=msg))
+            user.notified = True
+        db.session.commit()
+    else:
+        return abort(403)
+    return "OK"
+
+
+@app.route('/morning')
+def morning():
+    if request.remote_addr == "127.0.0.1":
+        builder_cache = {}
+        all_users = db.session.query(User).all()
+        for user in all_users:
+            user.notified is False
+            message_builder = builder_cache.get(
+                    user.nearest_observatory,
+                    MessageBuilder(get_jikkyou(user.nearest_observatory,
+                                               datetime.datetime.now().strftime('%Y%m')),
+                                   get_yohou(user.nearest_observatory)))
+            builder_cache.setdefault(user.nearest_observatory, message_builder)
+            msg = message_builder.build_message_today()
+            line_bot_api.push_message(user.user_id,
+                                      messages=TextSendMessage(text=msg))
+            if message_builder.now_wbgt.risk() == '危険':
+                user.notified = True
+        db.session.commit()
+    else:
+        return abort(403)
+    return "OK"

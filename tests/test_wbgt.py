@@ -124,3 +124,7 @@ class TestWBGT(unittest.TestCase):
         wbgt2 = WBGT("46106", "2019042918", 15.0)
         self.assertTrue(wbgt0.is_same_day(wbgt1))
         self.assertFalse(wbgt2.is_same_day(wbgt1))
+
+    def test_get_observatory_name(self):
+        wbgt = WBGT("46106", "2019042815", 15.0)
+        self.assertEqual("横浜", wbgt.get_observatory_name())

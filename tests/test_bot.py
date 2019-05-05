@@ -19,4 +19,4 @@ class TestBot(unittest.TestCase):
     def test_connect(self):
         res = self.app.get('/')
         self.assertEqual(200, res.status_code)
-        self.assertIn('This is Test.'.encode(), res.data)
+        self.assertIn('OK'.encode(), res.data)
