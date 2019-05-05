@@ -148,11 +148,12 @@ def check():
             wbgt = result_cache.get(
                     user.nearest_observatory,
                     get_jikkyou(user.nearest_observatory,
-                                datetime.datetime.strftime('%Y%m')))
+                                datetime.datetime.now().strftime('%Y%m')))
             result_cache.setdefault(user.nearest_observatory, wbgt)
             if wbgt.risk() == '危険':
                 msg = MessageBuilder.get_warning_message(wbgt)
-                line_bot_api.push_message(user.user_id, messages=msg)
+                line_bot_api.push_message(user.user_id,
+                                          messages=TextSendMessage(text=msg))
             user.notified = True
         db.session.commit()
     else:
@@ -170,11 +171,12 @@ def morning():
             message_builder = builder_cache.get(
                     user.nearest_observatory,
                     MessageBuilder(get_jikkyou(user.nearest_observatory,
-                                               datetime.datetime.strftime('%Y%m')),
+                                               datetime.datetime.now().strftime('%Y%m')),
                                    get_yohou(user.nearest_observatory)))
             builder_cache.setdefault(user.nearest_observatory, message_builder)
             msg = message_builder.build_message_today()
-            line_bot_api.push_message(user.user_id, messages=msg)
+            line_bot_api.push_message(user.user_id,
+                                      messages=TextSendMessage(text=msg))
             if message_builder.now_wbgt.risk() == '危険':
                 user.notified = True
         db.session.commit()
