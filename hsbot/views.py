@@ -19,6 +19,8 @@ from hsbot.utils.message_builder import MessageBuilder
 from hsbot.utils.utils import (
     get_nearest_observatory, postback_data_to_dict
 )
+from hsbot.utils.wbgt_api import get_jikkyou
+import datetime
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])
@@ -73,14 +75,15 @@ def handle_location_message(event):
     msg_text = f"現在登録している観測地点:\n  {registered_observatory}\n"
     msg_text += f"最寄りの観測地点:\n  {nearest_observatory}\nに変更しますか？"
 
-    messages = TextSendMessage(text=msg_text,
-                               quick_reply=QuickReply(items=[
-                                   QuickReplyButton(action=PostbackAction(
-                                       label='はい',
-                                       data=f'change=1&code={nearest_observatory.code}')),
-                                   QuickReplyButton(action=PostbackAction(
-                                       label='いいえ',
-                                       data='change=0'))]))
+    messages = TextSendMessage(
+                   text=msg_text,
+                   quick_reply=QuickReply(items=[
+                       QuickReplyButton(action=PostbackAction(
+                           label='はい',
+                           data=f'change=1&code={nearest_observatory.code}')),
+                       QuickReplyButton(action=PostbackAction(
+                           label='いいえ',
+                           data='change=0'))]))
 
     line_bot_api.reply_message(event.reply_token, messages)
     app.logger.info(f"{user} send location [{user_lat}, {user_lon}]")
@@ -125,4 +128,24 @@ def handle_unfollow(event):
 
 @app.route('/')
 def hello():
-    return "This is Test."
+    return "OK"
+
+
+@app.route('/check')
+def check():
+    if request.remote_addr == "127.0.0.1":
+        result_cache = {}
+        all_users = db.session.query(User).all()
+        for user in all_users:
+            wbgt = result_cache.get(
+                    user.nearest_observatory,
+                    get_jikkyou(user.nearest_observatory,
+                                datetime.datetime.strftime('%Y%m')))
+            result_cache.setdefault(user.nearest_observatory, wbgt)
+            if wbgt.risk == '危険':
+                pass
+                # 通知
+                # notified更新
+    else:
+        return abort(403)
+    return "OK"
