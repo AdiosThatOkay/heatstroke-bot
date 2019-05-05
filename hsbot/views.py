@@ -19,7 +19,9 @@ from hsbot.utils.message_builder import MessageBuilder
 from hsbot.utils.utils import (
     get_nearest_observatory, postback_data_to_dict
 )
-from hsbot.utils.wbgt_api import get_jikkyou
+from hsbot.utils.wbgt_api import (
+    get_jikkyou, get_yohou
+)
 import datetime
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
@@ -46,15 +48,19 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_id = event.source.user_id
+    user = db.session.query(User).filter(User.user_id == user_id).first()
+    observatory_code = user.nearest_observatory
+    ym = datetime.datetime.now().strftime('%Y%m')
+    now_wbgt = get_jikkyou(observatory_code, ym)
+    yohou_wbgt = get_yohou(observatory_code)
+    message_builder = MessageBuilder(now_wbgt, yohou_wbgt)
+
     if event.message.text in ['いま', '今', 'now', 'きょう', '今日', 'today']:
-        builder = MessageBuilder.get_message_builder(user_id)
-        msg = builder.build_message_today()
+        msg = message_builder.build_message_today()
     elif event.message.text in ['あした', 'あす', '明日', 'tomorrow']:
-        builder = MessageBuilder.get_message_builder(user_id)
-        msg = builder.build_message_later_date(1)
+        msg = message_builder.build_message_later_date(1)
     elif event.message.text in ['あさって', '明後日', 'day after tomorrow']:
-        builder = MessageBuilder.get_message_builder(user_id)
-        msg = builder.build_message_later_date(2)
+        msg = message_builder.build_message_later_date(2)
     else:
         msg = MessageBuilder.get_default_message()
 
@@ -144,8 +150,6 @@ def check():
             result_cache.setdefault(user.nearest_observatory, wbgt)
             if wbgt.risk == '危険':
                 pass
-                # 通知
-                # notified更新
     else:
         return abort(403)
     return "OK"

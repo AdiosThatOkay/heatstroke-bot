@@ -1,6 +1,8 @@
 from datetime import (
     datetime, timedelta
 )
+from hsbot import db
+from hsbot.models.observatories import Observatory
 
 
 class WBGT:
@@ -104,3 +106,8 @@ class WBGT:
                     other.get_day())
         else:
             return False
+
+    def get_observatory_name(self):
+        observatory = db.session.query(Observatory).filter(
+                Observatory.code == self.observatory_code).first()
+        return observatory.name
