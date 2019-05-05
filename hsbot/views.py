@@ -143,13 +143,41 @@ def check():
         result_cache = {}
         all_users = db.session.query(User).all()
         for user in all_users:
+            if user.notified is True:
+                continue
             wbgt = result_cache.get(
                     user.nearest_observatory,
                     get_jikkyou(user.nearest_observatory,
                                 datetime.datetime.strftime('%Y%m')))
             result_cache.setdefault(user.nearest_observatory, wbgt)
-            if wbgt.risk == '危険':
-                pass
+            if wbgt.risk() == '危険':
+                msg = MessageBuilder.get_warning_message(wbgt)
+                line_bot_api.push_message(user.user_id, messages=msg)
+            user.notified = True
+        db.session.commit()
+    else:
+        return abort(403)
+    return "OK"
+
+
+@app.route('/morning')
+def morning():
+    if request.remote_addr == "127.0.0.1":
+        builder_cache = {}
+        all_users = db.session.query(User).all()
+        for user in all_users:
+            user.notified is False
+            message_builder = builder_cache.get(
+                    user.nearest_observatory,
+                    MessageBuilder(get_jikkyou(user.nearest_observatory,
+                                               datetime.datetime.strftime('%Y%m')),
+                                   get_yohou(user.nearest_observatory)))
+            builder_cache.setdefault(user.nearest_observatory, message_builder)
+            msg = message_builder.build_message_today()
+            line_bot_api.push_message(user.user_id, messages=msg)
+            if message_builder.now_wbgt.risk() == '危険':
+                user.notified = True
+        db.session.commit()
     else:
         return abort(403)
     return "OK"

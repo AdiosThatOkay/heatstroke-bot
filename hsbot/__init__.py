@@ -14,8 +14,13 @@ scheduler = BackgroundScheduler()
 
 
 @scheduler.scheduled_job('interval', seconds=10)
-def polling():
+def request_for_check():
     requests.get('http://localhost:5000/check')
+
+
+@scheduler.scheduled_job('interval', minutes=1)
+def request_every_morning():
+    requests.get('http://localhost:5000/morning')
 
 
 scheduler.start()
