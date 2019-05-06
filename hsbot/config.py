@@ -7,4 +7,5 @@ LINE_CHANNEL_ACCESS_TOKEN = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN',
                                            'DUMMY_TOKEN')
 LINE_CHANNEL_SECRET = os.environ.get('LINE_CHANNEL_SECRET',
                                      'DUMMY_SECRET')
-DEBUG = True
+DEBUG = os.environ.get('DEBUG') and True
+PORT = os.environ.get('UWSGI_PORT') or '5000'
