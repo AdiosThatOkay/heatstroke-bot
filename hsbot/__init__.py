@@ -13,14 +13,15 @@ import hsbot.views
 scheduler = BackgroundScheduler()
 
 
-@scheduler.scheduled_job('cron', hour='7-21', minute='5,35')
+#@scheduler.scheduled_job('cron', hour='7-21', minute='5,35')
+@scheduler.scheduled_job('interval', seconds=10)
 def request_for_check():
-    requests.get('http://localhost:5000/check')
+    requests.get(f"http://localhost:{app.config['PORT']}/check")
 
 
 @scheduler.scheduled_job('cron', hour='7')
 def request_every_morning():
-    requests.get('http://localhost:5000/morning')
+    requests.get(f"http://localhost:{app.config['PORT']}/morning")
 
 
 scheduler.start()

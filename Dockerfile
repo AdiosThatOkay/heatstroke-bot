@@ -1,17 +1,17 @@
 FROM python:3
-RUN groupadd -r heatstroke && useradd -r -g heatstroke heatstroke
+RUN groupadd -r uwsgi && useradd -r -g uwsgi uwsgi
 RUN apt-get update && apt-get upgrade -y
 WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
-COPY --chown=heatstroke:heatstroke bot.py /app/bot.py
-COPY --chown=heatstroke:heatstroke hsbot /app/hsbot
-COPY --chown=heatstroke:heatstroke manage.py /app/manage.py
-COPY --chown=heatstroke:heatstroke tests /app/tests
+COPY --chown=uwsgi:uwsgi bot.py /app/bot.py
+COPY --chown=uwsgi:uwsgi hsbot /app/hsbot
+COPY --chown=uwsgi:uwsgi manage.py /app/manage.py
+COPY --chown=uwsgi:uwsgi tests /app/tests
 
 EXPOSE 5000
-USER heatstroke
+USER uwsgi
 ENV TZ=Asia/Tokyo
 ENV LINE_CHANNEL_ACCESS_TOKEN = "YOUR_CHANNEL_ACCESS_TOKEN"
 ENV LINE_CHANNEL_SECRET = "YOUR_CHANNEL_SECRET"
