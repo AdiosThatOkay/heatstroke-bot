@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.7
 RUN groupadd -r uwsgi && useradd -r -g uwsgi uwsgi
 RUN apt-get update && apt-get upgrade -y
 WORKDIR /app
