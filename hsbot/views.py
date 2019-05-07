@@ -154,7 +154,7 @@ def check():
                 msg = MessageBuilder.get_warning_message(wbgt)
                 line_bot_api.push_message(user.user_id,
                                           messages=TextSendMessage(text=msg))
-            user.notified = True
+                user.notified = True
         db.session.commit()
     else:
         return abort(403)
@@ -167,7 +167,7 @@ def morning():
         builder_cache = {}
         all_users = db.session.query(User).all()
         for user in all_users:
-            user.notified is False
+            user.notified = False
             message_builder = builder_cache.get(
                     user.nearest_observatory,
                     MessageBuilder(get_jikkyou(user.nearest_observatory,
