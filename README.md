@@ -6,6 +6,8 @@ WBGT data **(Japan only!)** is provided by [Japan Ministry of Environment.](http
 Let's prevent Heat Stroke!!
 
 ## Demo
+![demo1](https://github.com/AdiosThatOkay/heatstroke-linebot/blob/images/demo1.jpeg)
+![demo2](https://github.com/AdiosThatOkay/heatstroke-linebot/blob/images/demo2.jpeg)
 
 ## Requirement
 
