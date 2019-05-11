@@ -1,3 +1,4 @@
 /hsbot/**/__pycache__
 /hsbot/database/*.db
 /tests/__pycache__
+/docker-compose.yml

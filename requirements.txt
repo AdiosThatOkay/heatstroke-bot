@@ -1,0 +1,7 @@
+line-bot-sdk==1.8.0
+flask==1.0.2
+Flask-SQLAlchemy==2.4.0
+Flask-Script==2.0.6
+requests==2.21.0
+apscheduler==3.6.0
+uwsgi==2.0.18
